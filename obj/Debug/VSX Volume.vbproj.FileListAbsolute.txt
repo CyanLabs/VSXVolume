@@ -1,0 +1,19 @@
+C:\Users\Scott\AppData\Local\Temporary Projects\VSX Volume\bin\Debug\VSX Volume.pdb
+C:\Users\Scott\AppData\Local\Temporary Projects\VSX Volume\bin\Debug\VSX Volume.xml
+C:\Users\Scott\AppData\Local\Temporary Projects\VSX Volume\bin\Debug\WindowsHookLib.dll
+C:\Users\Scott\AppData\Local\Temporary Projects\VSX Volume\obj\Debug\VSX_Volume.Form1.resources
+C:\Users\Scott\AppData\Local\Temporary Projects\VSX Volume\obj\Debug\VSX_Volume.Resources.resources
+C:\Users\Scott\AppData\Local\Temporary Projects\VSX Volume\obj\Debug\VSX Volume.vbproj.GenerateResource.Cache
+C:\Users\Scott\AppData\Local\Temporary Projects\VSX Volume\obj\Debug\VSX Volume.xml
+C:\Users\Scott\AppData\Local\Temporary Projects\VSX Volume\obj\Debug\VSX Volume.pdb
+C:\Users\Scott\AppData\Local\Temporary Projects\VSX Volume\bin\Debug\VSX Volume.exe
+C:\Users\Scott\AppData\Local\Temporary Projects\VSX Volume\obj\Debug\VSX Volume.exe
+C:\Users\Scott\Documents\Visual Studio 2012\Projects\VSX Volume\VSX Volume\obj\Debug\VSX Volume.exe
+C:\Users\Scott\Documents\Visual Studio 2012\Projects\VSX Volume\VSX Volume\obj\Debug\VSX Volume.xml
+C:\Users\Scott\Documents\Visual Studio 2012\Projects\VSX Volume\VSX Volume\obj\Debug\VSX Volume.pdb
+C:\Users\Scott\Documents\Visual Studio 2012\Projects\VSX Volume\VSX Volume\bin\Debug\VSX Volume.exe
+C:\Users\Scott\Documents\Visual Studio 2012\Projects\VSX Volume\VSX Volume\bin\Debug\VSX Volume.pdb
+C:\Users\Scott\Documents\Visual Studio 2012\Projects\VSX Volume\VSX Volume\bin\Debug\VSX Volume.xml
+C:\Users\Scott\Documents\Visual Studio 2012\Projects\VSX Volume\VSX Volume\bin\Debug\WindowsHookLib.dll
+C:\Users\Scott\Documents\Visual Studio 2012\Projects\VSX Volume\VSX Volume\obj\Debug\VSX_Volume.Resources.resources
+C:\Users\Scott\Documents\Visual Studio 2012\Projects\VSX Volume\VSX Volume\obj\Debug\VSX Volume.vbproj.GenerateResource.Cache
