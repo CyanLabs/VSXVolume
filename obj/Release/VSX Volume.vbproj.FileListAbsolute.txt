@@ -1,0 +1,11 @@
+D:\fma96\Documents\GitHub\VSXVolume\obj\Release\VSX Volume.vbprojResolveAssemblyReference.cache
+D:\fma96\Documents\GitHub\VSXVolume\obj\Release\VSX_Volume.Main.resources
+D:\fma96\Documents\GitHub\VSXVolume\obj\Release\VSX_Volume.Resources.resources
+D:\fma96\Documents\GitHub\VSXVolume\obj\Release\VSX Volume.vbproj.GenerateResource.Cache
+D:\fma96\Documents\GitHub\VSXVolume\bin\Release\VSX Volume.exe
+D:\fma96\Documents\GitHub\VSXVolume\bin\Release\VSX Volume.pdb
+D:\fma96\Documents\GitHub\VSXVolume\bin\Release\VSX Volume.xml
+D:\fma96\Documents\GitHub\VSXVolume\bin\Release\WindowsHookLib.dll
+D:\fma96\Documents\GitHub\VSXVolume\obj\Release\VSX Volume.exe
+D:\fma96\Documents\GitHub\VSXVolume\obj\Release\VSX Volume.xml
+D:\fma96\Documents\GitHub\VSXVolume\obj\Release\VSX Volume.pdb

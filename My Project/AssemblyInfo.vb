@@ -8,17 +8,17 @@ Imports System.Runtime.InteropServices
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("VSX Volume")> 
-<Assembly: AssemblyDescription("Simple volume key hijack")> 
+<Assembly: AssemblyTitle("VSX Volume")>
+<Assembly: AssemblyDescription("Simple volume key hijack with on/off commands")>
 <Assembly: AssemblyCompany("CyanLabs")> 
-<Assembly: AssemblyProduct("VSX Volume")> 
-<Assembly: AssemblyCopyright("Copyright © CyanLabs 2014")> 
+<Assembly: AssemblyProduct("VSX Volume")>
+<Assembly: AssemblyCopyright("Copyright © CyanLabs 2017")>
 <Assembly: AssemblyTrademark("")> 
 
 <Assembly: ComVisible(False)>
 
 'The following GUID is for the ID of the typelib if this project is exposed to COM
-<Assembly: Guid("c3f42212-f615-426b-8b2d-7a516ba515a4")> 
+<Assembly: Guid("c3f42212-f615-426b-8b2d-7a516ba515a4")>
 
 ' Version information for an assembly consists of the following four values:
 '
@@ -31,5 +31,5 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("1.0.0.0")> 
-<Assembly: AssemblyFileVersion("1.0.0.0")> 
+<Assembly: AssemblyVersion("1.1.0.0")>
+<Assembly: AssemblyFileVersion("1.1.0.0")>

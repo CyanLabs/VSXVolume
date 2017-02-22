@@ -17,3 +17,13 @@ C:\Users\Scott\Documents\Visual Studio 2012\Projects\VSX Volume\VSX Volume\bin\D
 C:\Users\Scott\Documents\Visual Studio 2012\Projects\VSX Volume\VSX Volume\bin\Debug\WindowsHookLib.dll
 C:\Users\Scott\Documents\Visual Studio 2012\Projects\VSX Volume\VSX Volume\obj\Debug\VSX_Volume.Resources.resources
 C:\Users\Scott\Documents\Visual Studio 2012\Projects\VSX Volume\VSX Volume\obj\Debug\VSX Volume.vbproj.GenerateResource.Cache
+D:\fma96\Documents\GitHub\VSXVolume\obj\Debug\VSX Volume.exe
+D:\fma96\Documents\GitHub\VSXVolume\obj\Debug\VSX Volume.xml
+D:\fma96\Documents\GitHub\VSXVolume\obj\Debug\VSX Volume.pdb
+D:\fma96\Documents\GitHub\VSXVolume\bin\Debug\VSX Volume.exe
+D:\fma96\Documents\GitHub\VSXVolume\bin\Debug\VSX Volume.pdb
+D:\fma96\Documents\GitHub\VSXVolume\bin\Debug\VSX Volume.xml
+D:\fma96\Documents\GitHub\VSXVolume\obj\Debug\VSX Volume.vbprojResolveAssemblyReference.cache
+D:\fma96\Documents\GitHub\VSXVolume\obj\Debug\VSX_Volume.Resources.resources
+D:\fma96\Documents\GitHub\VSXVolume\obj\Debug\VSX Volume.vbproj.GenerateResource.Cache
+D:\fma96\Documents\GitHub\VSXVolume\obj\Debug\VSX_Volume.Main.resources
