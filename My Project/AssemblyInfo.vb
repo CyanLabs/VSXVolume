@@ -9,7 +9,7 @@ Imports System.Runtime.InteropServices
 ' Review the values of the assembly attributes
 
 <Assembly: AssemblyTitle("VSX Volume")>
-<Assembly: AssemblyDescription("Simple volume key hijack with on/off commands")>
+<Assembly: AssemblyDescription("Simple volume key hijack with on/off commands and a OSD")>
 <Assembly: AssemblyCompany("CyanLabs")> 
 <Assembly: AssemblyProduct("VSX Volume")>
 <Assembly: AssemblyCopyright("Copyright © CyanLabs 2017")>
@@ -31,5 +31,5 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("1.1.0.0")>
-<Assembly: AssemblyFileVersion("1.1.0.0")>
+<Assembly: AssemblyVersion("1.2.0.0")>
+<Assembly: AssemblyFileVersion("1.2.0.0")>

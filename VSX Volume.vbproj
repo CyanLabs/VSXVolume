@@ -75,7 +75,7 @@
     <Import Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Code.vb" />
+    <Compile Include="font.vb" />
     <Compile Include="Main.Designer.vb">
       <DependentUpon>Main.vb</DependentUpon>
     </Compile>
@@ -119,6 +119,7 @@
       <CustomToolNamespace>My</CustomToolNamespace>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
+    <None Include="Resources\LCD-Solid.ttf" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Saki-NuoveXT-Actions-player-volume.ico" />

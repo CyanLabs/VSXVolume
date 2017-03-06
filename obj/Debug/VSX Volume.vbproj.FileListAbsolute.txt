@@ -27,3 +27,4 @@ D:\fma96\Documents\GitHub\VSXVolume\obj\Debug\VSX Volume.vbprojResolveAssemblyRe
 D:\fma96\Documents\GitHub\VSXVolume\obj\Debug\VSX_Volume.Resources.resources
 D:\fma96\Documents\GitHub\VSXVolume\obj\Debug\VSX Volume.vbproj.GenerateResource.Cache
 D:\fma96\Documents\GitHub\VSXVolume\obj\Debug\VSX_Volume.Main.resources
+D:\fma96\Documents\GitHub\VSXVolume\bin\Debug\WindowsHookLib.dll

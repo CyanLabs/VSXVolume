@@ -22,5 +22,10 @@ VSX Volume
   resource lookups using this strongly typed resource class.
 </summary>
 </member>
+<member name="P:VSX_Volume.My.Resources.Resources.LCD_Solid">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
 </members>
 </doc>
