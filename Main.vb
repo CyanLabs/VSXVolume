@@ -1,4 +1,20 @@
-﻿Imports WindowsHookLib
+﻿' VSX Volume
+' Cyanlabs 2017
+' http://cyanlabs.net/application/vsx-volume
+
+' This program is free software: you can redistribute it and/or modify
+' it under the terms of the GNU General Public License as published by
+' the Free Software Foundation, either version 3 of the License, or
+' (at your option) any later version.
+
+' This program is distributed in the hope that it will be useful,
+' but WITHOUT ANY WARRANTY; without even the implied warranty of
+' MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+' GNU General Public License for more details.
+' You should have received a copy of the GNU General Public License
+' along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Imports WindowsHookLib
 Imports System.Net
 Imports System.Net.Sockets
 Imports System.Text
@@ -7,13 +23,12 @@ Public Class Main
     Dim ip As IPAddress, tnSocket As New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp), ep As IPEndPoint, startupcmd As Boolean = False
     Dim WithEvents kHook As New KeyboardHook
     Dim CheckScreen As New System.Threading.Thread(AddressOf UpdateScreen)
-    Dim oncmd, offcmd As String
-    Dim showosd As Boolean = False, hidesplash As Boolean = False
+    Dim oncmd As String, offcmd As String, showosd As Boolean = False, hidesplash As Boolean = False
 
     Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        kHook.InstallHook() 'installs global hook
-        Me.Opacity = 0
-        If Environment.GetCommandLineArgs.Count > 1 Then
+        kHook.InstallHook() 'installs keyboard hook
+        Me.Opacity = 0 'hides form
+        If Environment.GetCommandLineArgs.Count > 1 Then 'loops through command line arguments
             For Each arg In Environment.GetCommandLineArgs
                 Select Case True
                     Case arg.ToLower.Contains("/ip=")
@@ -42,6 +57,7 @@ Public Class Main
             Next
         Else
             MsgBox("No arguments entered, please read the documentation at http://cyanlabs.net/application/vsx-volume for further information", MsgBoxStyle.Exclamation, "Error")
+            Application.Exit()
         End If
 
         ConnectToVSX()
@@ -54,21 +70,21 @@ Public Class Main
             Next
         End If
 
+        'checks command line arguments to see if osd is enabled
         If showosd Then
-            'Starts OSD thread and injects LCD font.  
-            CheckForIllegalCrossThreadCalls = False
-            Dim x As Long = (My.Computer.Screen.WorkingArea.Right - 5) - Me.Width
-            Dim y As Long = (My.Computer.Screen.WorkingArea.Bottom - 5) - Me.Height
+            CheckForIllegalCrossThreadCalls = False  'TODO: do invoke etc to prevent needing this override
+            Dim x As Integer
+            Dim y As Integer
+            x = Screen.PrimaryScreen.WorkingArea.Width - (Me.Width + 5)
+            y = Screen.PrimaryScreen.WorkingArea.Height - (Me.Height + 5)
             Me.Location = New Point(x, y)
-            If hidesplash = False Then
-                BackgroundWorker1.RunWorkerAsync()
-            End If
+            If hidesplash = False Then BackgroundWorker1.RunWorkerAsync() 'shows splashscreen if /hidesplash isn't set
             CheckScreen.IsBackground = True
             CheckScreen.Start()
         End If
     End Sub
 
-    'run off commands on application exit (system logoff/shutdown)
+    'loop through off commands
     Private Sub Main_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
         If Not offcmd = "" Then
             For Each cmd In offcmd.Split(",")
@@ -97,6 +113,10 @@ Public Class Main
         Return Nothing
     End Function
 
+    Private Sub ExitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExitToolStripMenuItem.Click
+        Application.Exit()
+    End Sub
+
     'used for osd display, adds a border
     Protected Overrides Sub OnPaintBackground(ByVal e As System.Windows.Forms.PaintEventArgs)
         MyBase.OnPaintBackground(e)
@@ -115,6 +135,9 @@ Public Class Main
         ElseIf e.KeyCode = Keys.VolumeMute And Control.ModifierKeys = Keys.Control = False Then
             e.Handled = True
             SendCommands("MZ")
+        ElseIf e.KeyCode = Keys.Pause And Control.ModifierKeys = Keys.Control = False Then
+            e.Handled = True
+            SendCommands("PZ")
         End If
     End Sub
 
@@ -149,19 +172,18 @@ Public Class Main
 
     'parses the output recieved from the screen
     Sub ParseScreen(output As String)
-        'Try
-        output = output.Replace(vbLf, "").Replace(vbCrLf, "")
-        If output.ToString.Contains("FL") Then
-            Dim decryptedOSD As String = DecryptScreen(output)
-            Me.lblOSD.Font = CustomFont.GetInstance(24.0!, FontStyle.Regular)
-            lblOSD.Text = decryptedOSD.ToString
-            If Not BackgroundWorker1.IsBusy Then
-                BackgroundWorker1.RunWorkerAsync()
+        Try
+            output = output.Replace(vbLf, "").Replace(vbCrLf, "")
+            If output.ToString.Contains("FL") Then
+                Dim decryptedOSD As String = DecryptScreen(output)
+                Me.lblOSD.Font = CustomFont.GetInstance(24.0!, FontStyle.Regular)
+                lblOSD.Text = decryptedOSD.ToString
+                If Not BackgroundWorker1.IsBusy Then BackgroundWorker1.RunWorkerAsync()
             End If
-        End If
-        'Catch
-        'TODO error handling
-        'End Try
+        Catch ex As Exception
+            Throw ex
+            'TODO error handling
+        End Try
     End Sub
 
     'Background Sub to constantly update the UI with updated information from the screen.
@@ -170,7 +192,6 @@ Public Class Main
         Dim result As String()
         Dim RecvString As String = String.Empty
         Dim NumBytes As Integer = 0
-        Dim OSD As String = ""
         Dim RecvBytes(255) As [Byte]
         Do
             NumBytes = tnSocket.Receive(RecvBytes, RecvBytes.Length, 0)

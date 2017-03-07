@@ -22,8 +22,14 @@ Partial Class Main
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Main))
         Me.lblOSD = New System.Windows.Forms.Label()
         Me.BackgroundWorker1 = New System.ComponentModel.BackgroundWorker()
+        Me.ntfyMain = New System.Windows.Forms.NotifyIcon(Me.components)
+        Me.ctxtExit = New System.Windows.Forms.ContextMenuStrip(Me.components)
+        Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ctxtExit.SuspendLayout()
         Me.SuspendLayout()
         '
         'lblOSD
@@ -45,6 +51,28 @@ Partial Class Main
         '
         Me.BackgroundWorker1.WorkerSupportsCancellation = True
         '
+        'ntfyMain
+        '
+        Me.ntfyMain.BalloonTipIcon = System.Windows.Forms.ToolTipIcon.Info
+        Me.ntfyMain.BalloonTipText = "Click to exit"
+        Me.ntfyMain.BalloonTipTitle = "VSX Volume"
+        Me.ntfyMain.ContextMenuStrip = Me.ctxtExit
+        Me.ntfyMain.Icon = CType(resources.GetObject("ntfyMain.Icon"), System.Drawing.Icon)
+        Me.ntfyMain.Text = "VSX Volume"
+        Me.ntfyMain.Visible = True
+        '
+        'ctxtExit
+        '
+        Me.ctxtExit.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ExitToolStripMenuItem})
+        Me.ctxtExit.Name = "ctxtExit"
+        Me.ctxtExit.Size = New System.Drawing.Size(93, 26)
+        '
+        'ExitToolStripMenuItem
+        '
+        Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(92, 22)
+        Me.ExitToolStripMenuItem.Text = "E&xit"
+        '
         'Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -57,12 +85,17 @@ Partial Class Main
         Me.ShowIcon = False
         Me.ShowInTaskbar = False
         Me.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.Manual
         Me.Text = "Main"
         Me.TopMost = True
+        Me.ctxtExit.ResumeLayout(False)
         Me.ResumeLayout(False)
 
     End Sub
 
     Friend WithEvents lblOSD As Label
     Friend WithEvents BackgroundWorker1 As System.ComponentModel.BackgroundWorker
+    Friend WithEvents ntfyMain As NotifyIcon
+    Friend WithEvents ctxtExit As ContextMenuStrip
+    Friend WithEvents ExitToolStripMenuItem As ToolStripMenuItem
 End Class
