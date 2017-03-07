@@ -29,6 +29,7 @@ Public Class Main
     Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         kHook.InstallHook() 'installs keyboard hook
         Me.Opacity = 0 'hides form
+        CheckForIllegalCrossThreadCalls = False  'TODO: do invoke etc to prevent needing this override
         If Environment.GetCommandLineArgs.Count > 1 Then 'loops through command line arguments
             For Each arg In Environment.GetCommandLineArgs
                 Select Case True
@@ -65,7 +66,6 @@ Public Class Main
 
         'checks command line arguments to see if osd is enabled
         If showosd Then
-            CheckForIllegalCrossThreadCalls = False  'TODO: do invoke etc to prevent needing this override
             Dim x As Integer
             Dim y As Integer
             x = Screen.PrimaryScreen.WorkingArea.Width - (Me.Width + 5)
