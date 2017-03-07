@@ -23,6 +23,7 @@ Public Class Main
     Dim ip As IPAddress, tnSocket As New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp), ep As IPEndPoint, startupcmd As Boolean = False
     Dim WithEvents kHook As New KeyboardHook
     Dim CheckScreen As New System.Threading.Thread(AddressOf UpdateScreen)
+    Dim RunOnCMD As New System.Threading.Thread(AddressOf OnCommands)
     Dim oncmd As String, offcmd As String, showosd As Boolean = False, hidesplash As Boolean = False
 
     Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -62,14 +63,6 @@ Public Class Main
 
         ConnectToVSX()
 
-        'loop through on commands
-        If Not oncmd = "" Then
-            For Each cmd In oncmd.Split(",")
-                SendCommands(cmd.ToUpper)
-                System.Threading.Thread.Sleep(3000)
-            Next
-        End If
-
         'checks command line arguments to see if osd is enabled
         If showosd Then
             CheckForIllegalCrossThreadCalls = False  'TODO: do invoke etc to prevent needing this override
@@ -82,7 +75,22 @@ Public Class Main
             CheckScreen.IsBackground = True
             CheckScreen.Start()
         End If
+
+        'loop through on commands
+        If Not oncmd = "" Then
+            RunOnCMD.IsBackground = True
+            RunOnCMD.Start()
+        End If
+
     End Sub
+
+    Private Sub OnCommands()
+        For Each cmd In oncmd.Split(",")
+            SendCommands(cmd.ToUpper)
+            System.Threading.Thread.Sleep(3000)
+        Next
+    End Sub
+
 
     'loop through off commands
     Private Sub Main_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
