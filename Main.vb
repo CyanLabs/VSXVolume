@@ -18,15 +18,16 @@ Imports WindowsHookLib
 Imports System.Net
 Imports System.Net.Sockets
 Imports System.Text
+Imports Microsoft.Win32
 
 Public Class Main
     Dim ip As IPAddress, tnSocket As New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp), ep As IPEndPoint, startupcmd As Boolean = False
     Dim WithEvents kHook As New KeyboardHook
     Dim CheckScreen As New System.Threading.Thread(AddressOf UpdateScreen)
-    Dim RunOnCMD As New System.Threading.Thread(AddressOf OnCommands)
-    Dim oncmd As String, offcmd As String, showosd As Boolean = False, hidesplash As Boolean = False
+    Dim oncmd As String, offcmd As String, showosd As Boolean = False, hidesplash As Boolean = False, statecmd As Boolean = False
 
     Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        AutoUpdaterDotNET.AutoUpdater.Start("http://cyanlabs.net/raw/latest.php?product=" & My.Application.Info.ProductName)
         kHook.InstallHook() 'installs keyboard hook
         Me.Opacity = 0 'hides form
         CheckForIllegalCrossThreadCalls = False  'TODO: do invoke etc to prevent needing this override
@@ -54,6 +55,9 @@ Public Class Main
 
                     Case arg.ToLower.Contains("/hidesplash")
                         hidesplash = True
+
+                    Case arg.ToLower = "/p"
+                        statecmd = True
                     Case Else
                 End Select
             Next
@@ -78,10 +82,14 @@ Public Class Main
 
         'loop through on commands
         If Not oncmd = "" Then
+            Dim RunOnCMD As New System.Threading.Thread(AddressOf OnCommands)
             RunOnCMD.IsBackground = True
             RunOnCMD.Start()
         End If
 
+        If statecmd Then
+            AddHandler Microsoft.Win32.SystemEvents.PowerModeChanged, AddressOf SystemEvents_PowerModeChanged
+        End If
     End Sub
 
     Private Sub OnCommands()
@@ -91,6 +99,20 @@ Public Class Main
         Next
     End Sub
 
+    Private Sub SystemEvents_PowerModeChanged(ByVal sender As Object, ByVal e As PowerModeChangedEventArgs)
+        Select Case e.Mode
+            Case PowerModes.Resume
+                Dim RunOnCMD As New System.Threading.Thread(AddressOf OnCommands)
+                    RunOnCMD.IsBackground = True
+                    RunOnCMD.Start()
+                    Case PowerModes.StatusChange
+            Case PowerModes.Suspend
+                For Each cmd In offcmd.Split(",")
+                    SendCommands(cmd.ToUpper)
+                    System.Threading.Thread.Sleep(3000)
+                Next
+        End Select
+    End Sub
 
     'loop through off commands
     Private Sub Main_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
