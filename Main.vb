@@ -43,9 +43,7 @@ Public Class Main
                         End If
 
                     Case arg.ToLower.Contains("/oncommands=")
-                        If arg.ToLower.Contains("/oncommands=") Then
-                            oncmd = arg.Replace("/oncommands=", "").Replace("""", "").Trim
-                        End If
+                        oncmd = arg.Replace("/oncommands=", "").Replace("""", "").Trim
 
                     Case arg.ToLower.Contains("/offcommands=")
                         offcmd = arg.Replace("/offcommands=", "").Replace("""", "").Trim
@@ -100,18 +98,25 @@ Public Class Main
     End Sub
 
     Private Sub SystemEvents_PowerModeChanged(ByVal sender As Object, ByVal e As PowerModeChangedEventArgs)
-        Select Case e.Mode
-            Case PowerModes.Resume
-                Dim RunOnCMD As New System.Threading.Thread(AddressOf OnCommands)
-                    RunOnCMD.IsBackground = True
-                    RunOnCMD.Start()
-                    Case PowerModes.StatusChange
-            Case PowerModes.Suspend
-                For Each cmd In offcmd.Split(",")
-                    SendCommands(cmd.ToUpper)
-                    System.Threading.Thread.Sleep(3000)
-                Next
-        End Select
+        Try
+            Select Case e.Mode
+                Case PowerModes.Resume
+                    If Not oncmd = "" Then
+                        Dim RunOnCMD As New System.Threading.Thread(AddressOf OnCommands)
+                        RunOnCMD.IsBackground = True
+                        RunOnCMD.Start()
+                    End If
+                Case PowerModes.Suspend
+                    If Not offcmd = "" Then
+                        For Each cmd In offcmd.Split(",")
+                            SendCommands(cmd.ToUpper)
+                            System.Threading.Thread.Sleep(3000)
+                        Next
+                    End If
+            End Select
+        Catch ex As Exception
+            Debug.WriteLine(ex.Message)
+        End Try
     End Sub
 
     'loop through off commands
