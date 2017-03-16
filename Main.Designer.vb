@@ -29,7 +29,14 @@ Partial Class Main
         Me.ntfyMain = New System.Windows.Forms.NotifyIcon(Me.components)
         Me.ctxtExit = New System.Windows.Forms.ContextMenuStrip(Me.components)
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.sliderVol = New System.Windows.Forms.TrackBar()
+        Me.Label1 = New System.Windows.Forms.Label()
+        Me.imgPower = New System.Windows.Forms.PictureBox()
+        Me.imgMute = New System.Windows.Forms.PictureBox()
         Me.ctxtExit.SuspendLayout()
+        CType(Me.sliderVol, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.imgPower, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.imgMute, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'lblOSD
@@ -73,12 +80,63 @@ Partial Class Main
         Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(92, 22)
         Me.ExitToolStripMenuItem.Text = "E&xit"
         '
+        'sliderVol
+        '
+        Me.sliderVol.AutoSize = False
+        Me.sliderVol.Location = New System.Drawing.Point(48, 56)
+        Me.sliderVol.Maximum = 185
+        Me.sliderVol.Name = "sliderVol"
+        Me.sliderVol.Size = New System.Drawing.Size(233, 23)
+        Me.sliderVol.SmallChange = 2
+        Me.sliderVol.TabIndex = 21
+        Me.sliderVol.TickStyle = System.Windows.Forms.TickStyle.None
+        '
+        'Label1
+        '
+        Me.Label1.AutoSize = True
+        Me.Label1.Font = New System.Drawing.Font("Segoe UI", 15.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label1.ForeColor = System.Drawing.Color.White
+        Me.Label1.Location = New System.Drawing.Point(284, 50)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(49, 30)
+        Me.Label1.TabIndex = 23
+        Me.Label1.Text = "100"
+        Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        '
+        'imgPower
+        '
+        Me.imgPower.BackColor = System.Drawing.Color.Transparent
+        Me.imgPower.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.imgPower.Image = Global.VSX_Volume.My.Resources.Resources.off
+        Me.imgPower.Location = New System.Drawing.Point(310, 3)
+        Me.imgPower.Name = "imgPower"
+        Me.imgPower.Size = New System.Drawing.Size(20, 20)
+        Me.imgPower.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
+        Me.imgPower.TabIndex = 24
+        Me.imgPower.TabStop = False
+        '
+        'imgMute
+        '
+        Me.imgMute.BackColor = System.Drawing.Color.Transparent
+        Me.imgMute.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.imgMute.Image = CType(resources.GetObject("imgMute.Image"), System.Drawing.Image)
+        Me.imgMute.Location = New System.Drawing.Point(12, 49)
+        Me.imgMute.Name = "imgMute"
+        Me.imgMute.Size = New System.Drawing.Size(32, 32)
+        Me.imgMute.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
+        Me.imgMute.TabIndex = 22
+        Me.imgMute.TabStop = False
+        '
         'Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.Black
-        Me.ClientSize = New System.Drawing.Size(335, 55)
+        Me.ClientSize = New System.Drawing.Size(335, 90)
+        Me.Controls.Add(Me.imgPower)
+        Me.Controls.Add(Me.Label1)
+        Me.Controls.Add(Me.imgMute)
+        Me.Controls.Add(Me.sliderVol)
         Me.Controls.Add(Me.lblOSD)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.Name = "Main"
@@ -89,7 +147,11 @@ Partial Class Main
         Me.Text = "Main"
         Me.TopMost = True
         Me.ctxtExit.ResumeLayout(False)
+        CType(Me.sliderVol, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.imgPower, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.imgMute, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
 
@@ -98,4 +160,8 @@ Partial Class Main
     Friend WithEvents ntfyMain As NotifyIcon
     Friend WithEvents ctxtExit As ContextMenuStrip
     Friend WithEvents ExitToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents sliderVol As TrackBar
+    Friend WithEvents imgMute As PictureBox
+    Friend WithEvents Label1 As Label
+    Friend WithEvents imgPower As PictureBox
 End Class

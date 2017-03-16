@@ -24,8 +24,7 @@ Public Class Main
     Dim ip As IPAddress, tnSocket As New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp), ep As IPEndPoint, startupcmd As Boolean = False
     Dim WithEvents kHook As New KeyboardHook
     Dim CheckScreen As New System.Threading.Thread(AddressOf UpdateScreen)
-    Dim oncmd As String, offcmd As String, showosd As Boolean = False, hidesplash As Boolean = False, statecmd As Boolean = False
-
+    Dim oncmd As String, offcmd As String, showosd As Boolean = False, hidesplash As Boolean = False, statecmd As Boolean = False, manual As Boolean = False
     Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AutoUpdaterDotNET.AutoUpdater.Start("http://cyanlabs.net/raw/latest.php?product=" & My.Application.Info.ProductName)
         kHook.InstallHook() 'installs keyboard hook
@@ -56,6 +55,10 @@ Public Class Main
 
                     Case arg.ToLower = "/p"
                         statecmd = True
+
+                    Case arg.ToLower = "/nokeybinds"
+                        kHook.RemoveHook()
+                        kHook.Dispose()
                     Case Else
                 End Select
             Next
@@ -74,6 +77,9 @@ Public Class Main
             y = Screen.PrimaryScreen.WorkingArea.Height - (Me.Height + 5)
             Me.Location = New Point(x, y)
             If hidesplash = False Then BackgroundWorker1.RunWorkerAsync() 'shows splashscreen if /hidesplash isn't set
+            SendCommands("?V")
+            SendCommands("?M")
+            SendCommands("?P")
             CheckScreen.IsBackground = True
             CheckScreen.Start()
         End If
@@ -148,6 +154,50 @@ Public Class Main
         Return Nothing
     End Function
 
+    'Quick sub to parse volume and remove/add needed amount of zero's.
+    Private Sub ValidateVolume(volume As String)
+        'if value is less than 10 pre-fix 2 "0"s else if less than 100 pre-fix 1 "0" else just send the command without added "0"s
+        If volume >= 185 Then
+            SendCommands("185VL")
+        ElseIf volume <= 0 Then
+            SendCommands("000VL")
+        ElseIf volume < 10 Then
+            SendCommands("00" & volume & "VL")
+        ElseIf volume < 100 Then
+            SendCommands("0" & volume & "VL")
+        Else
+            SendCommands(volume & "VL")
+        End If
+    End Sub
+
+    Private Sub ntfyMain_Click(sender As Object, e As EventArgs) Handles ntfyMain.Click
+        manual = True
+        Me.Opacity = 1
+        Me.Show()
+    End Sub
+
+    Private Sub sliderVol_ValueChanged(sender As Object, e As EventArgs) Handles sliderVol.ValueChanged
+        Label1.Text = Math.Round(sliderVol.Value / sliderVol.Maximum * 100)
+    End Sub
+
+
+    Private Sub Main_Deactivate(sender As Object, e As EventArgs) Handles MyBase.Deactivate
+        manual = False
+        Me.Opacity = 0
+    End Sub
+
+    Private Sub sliderVol_Scroll(sender As Object, e As EventArgs) Handles sliderVol.Scroll
+        ValidateVolume(sliderVol.Value)
+    End Sub
+
+    Private Sub imgMute_Click(sender As Object, e As EventArgs) Handles imgMute.Click
+        SendCommands("MZ")
+    End Sub
+
+    Private Sub PictureBox1_Click(sender As Object, e As EventArgs) Handles imgPower.Click
+        SendCommands("PZ")
+    End Sub
+
     Private Sub ExitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExitToolStripMenuItem.Click
         Application.Exit()
     End Sub
@@ -178,16 +228,18 @@ Public Class Main
 
     'fade form in, wait 5 seconds, fade form out
     Private Sub BackgroundWorker1_DoWork(sender As Object, e As System.ComponentModel.DoWorkEventArgs) Handles BackgroundWorker1.DoWork
-        For iCount = 10 To 90 Step 10
-            Me.Opacity = iCount / 100
-            Threading.Thread.Sleep(25)
-        Next
-        Threading.Thread.Sleep(5000)
-        For iCount = 90 To 10 Step -10
-            Me.Opacity = iCount / 100
-            Threading.Thread.Sleep(25)
-        Next
-        Me.Opacity = 0
+        If manual = False Then
+            For iCount = 10 To 90 Step 10
+                Me.Opacity = iCount / 100
+                Threading.Thread.Sleep(25)
+            Next
+            Threading.Thread.Sleep(5000)
+            For iCount = 90 To 10 Step -10
+                Me.Opacity = iCount / 100
+                Threading.Thread.Sleep(25)
+            Next
+            Me.Opacity = 0
+        End If
     End Sub
 
     'Converts pioneers FL strings such as "FL022020202053544552454F20202020" to readable text "STEREO".
@@ -214,6 +266,16 @@ Public Class Main
                 Me.lblOSD.Font = CustomFont.GetInstance(24.0!, FontStyle.Regular)
                 lblOSD.Text = decryptedOSD.ToString
                 If Not BackgroundWorker1.IsBusy Then BackgroundWorker1.RunWorkerAsync()
+            ElseIf output.ToString.Contains("MUT0") Then
+                imgMute.Image = My.Resources.mute
+            ElseIf output.ToString.Contains("MUT1") Then
+                imgMute.Image = My.Resources.vol
+            ElseIf output.ToString.Contains("VOL") Then
+                sliderVol.Value = output.ToString.Replace("VOL", "")
+            ElseIf output.ToString.Contains("PWR0") Then
+                imgPower.Image = My.Resources.pwron
+            ElseIf output.ToString.Contains("PWR1") Then
+                imgPower.Image = My.Resources.off
             End If
         Catch ex As Exception
             Throw ex

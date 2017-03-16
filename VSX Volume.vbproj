@@ -108,9 +108,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -126,6 +126,10 @@
     <None Include="Resources\LCD-Solid.ttf" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\off.png" />
+    <None Include="Resources\on.png" />
+    <None Include="Resources\mute.png" />
+    <None Include="Resources\vol.png" />
     <Content Include="Saki-NuoveXT-Actions-player-volume.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
