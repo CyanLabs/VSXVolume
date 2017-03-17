@@ -33,6 +33,8 @@ Partial Class Main
         Me.Label1 = New System.Windows.Forms.Label()
         Me.imgPower = New System.Windows.Forms.PictureBox()
         Me.imgMute = New System.Windows.Forms.PictureBox()
+        Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator()
+        Me.CheckForupdatesToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ctxtExit.SuspendLayout()
         CType(Me.sliderVol, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.imgPower, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -70,14 +72,14 @@ Partial Class Main
         '
         'ctxtExit
         '
-        Me.ctxtExit.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ExitToolStripMenuItem})
+        Me.ctxtExit.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.CheckForupdatesToolStripMenuItem, Me.ToolStripSeparator1, Me.ExitToolStripMenuItem})
         Me.ctxtExit.Name = "ctxtExit"
-        Me.ctxtExit.Size = New System.Drawing.Size(93, 26)
+        Me.ctxtExit.Size = New System.Drawing.Size(171, 76)
         '
         'ExitToolStripMenuItem
         '
         Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
-        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(92, 22)
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(170, 22)
         Me.ExitToolStripMenuItem.Text = "E&xit"
         '
         'sliderVol
@@ -127,6 +129,17 @@ Partial Class Main
         Me.imgMute.TabIndex = 22
         Me.imgMute.TabStop = False
         '
+        'ToolStripSeparator1
+        '
+        Me.ToolStripSeparator1.Name = "ToolStripSeparator1"
+        Me.ToolStripSeparator1.Size = New System.Drawing.Size(167, 6)
+        '
+        'CheckForupdatesToolStripMenuItem
+        '
+        Me.CheckForupdatesToolStripMenuItem.Name = "CheckForupdatesToolStripMenuItem"
+        Me.CheckForupdatesToolStripMenuItem.Size = New System.Drawing.Size(170, 22)
+        Me.CheckForupdatesToolStripMenuItem.Text = "Check for &updates"
+        '
         'Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -164,4 +177,6 @@ Partial Class Main
     Friend WithEvents imgMute As PictureBox
     Friend WithEvents Label1 As Label
     Friend WithEvents imgPower As PictureBox
+    Friend WithEvents ToolStripSeparator1 As ToolStripSeparator
+    Friend WithEvents CheckForupdatesToolStripMenuItem As ToolStripMenuItem
 End Class

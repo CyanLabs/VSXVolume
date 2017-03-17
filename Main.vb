@@ -22,43 +22,37 @@ Imports Microsoft.Win32
 
 Public Class Main
     Dim ip As IPAddress, tnSocket As New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp), ep As IPEndPoint, startupcmd As Boolean = False
-    Dim WithEvents kHook As New KeyboardHook
+    Dim WithEvents KHook As New KeyboardHook
     Dim CheckScreen As New System.Threading.Thread(AddressOf UpdateScreen)
-    Dim oncmd As String, offcmd As String, showosd As Boolean = False, hidesplash As Boolean = False, statecmd As Boolean = False, manual As Boolean = False
+    Dim oncmd As String, offcmd As String, showosd As Boolean = False, statecmd As Boolean = False, manual As Boolean = False
+
     Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AutoUpdaterDotNET.AutoUpdater.Start("http://cyanlabs.net/raw/latest.php?product=" & My.Application.Info.ProductName)
-        kHook.InstallHook() 'installs keyboard hook
-        Me.Opacity = 0 'hides form
-        CheckForIllegalCrossThreadCalls = False  'TODO: do invoke etc to prevent needing this override
-        If Environment.GetCommandLineArgs.Count > 1 Then 'loops through command line arguments
+        KHook.InstallHook()
+        Me.Opacity = 0
+
+        'Collects the command line arguments and sets needed variables
+        If Environment.GetCommandLineArgs.Count > 1 Then
             For Each arg In Environment.GetCommandLineArgs
                 Select Case True
                     Case arg.ToLower.Contains("/ip=")
                         If IPAddress.TryParse(arg.Replace("/ip=", ""), ip) Then
-                            ep = New IPEndPoint(System.Net.IPAddress.Parse(arg.Replace("/ip=", "")), 8102) 'parse and validate IP
+                            ep = New IPEndPoint(System.Net.IPAddress.Parse(arg.Replace("/ip=", "")), 8102)
                         Else
                             MsgBox("Enter a valid IP Address as a command line argument (VSX Volume.exe /ip=xxx.xxx.xxx.xxx)", MsgBoxStyle.Exclamation, "Error")
                             Application.Exit()
                         End If
-
                     Case arg.ToLower.Contains("/oncommands=")
                         oncmd = arg.Replace("/oncommands=", "").Replace("""", "").Trim
-
                     Case arg.ToLower.Contains("/offcommands=")
                         offcmd = arg.Replace("/offcommands=", "").Replace("""", "").Trim
-
                     Case arg.ToLower.Contains("/osd")
                         showosd = True
-
-                    Case arg.ToLower.Contains("/hidesplash")
-                        hidesplash = True
-
                     Case arg.ToLower = "/p"
                         statecmd = True
-
                     Case arg.ToLower = "/nokeybinds"
-                        kHook.RemoveHook()
-                        kHook.Dispose()
+                        KHook.RemoveHook()
+                        KHook.Dispose()
                     Case Else
                 End Select
             Next
@@ -67,35 +61,33 @@ Public Class Main
             Application.Exit()
         End If
 
-        ConnectToVSX()
+        tnSocket.Connect(ep)
+
+        'prepares OSD as OSD is shown regardless of argument above if notification icon is clicked manually
+        Dim x As Integer
+        Dim y As Integer
+        x = Screen.PrimaryScreen.WorkingArea.Width - (Me.Width + 5)
+        y = Screen.PrimaryScreen.WorkingArea.Height - (Me.Height + 5)
+        Me.Location = New Point(x, y)
+        SendCommands("?V")
+        SendCommands("?M")
+        SendCommands("?P")
+        CheckScreen.IsBackground = True
 
         'checks command line arguments to see if osd is enabled
-        If showosd Then
-            Dim x As Integer
-            Dim y As Integer
-            x = Screen.PrimaryScreen.WorkingArea.Width - (Me.Width + 5)
-            y = Screen.PrimaryScreen.WorkingArea.Height - (Me.Height + 5)
-            Me.Location = New Point(x, y)
-            If hidesplash = False Then BackgroundWorker1.RunWorkerAsync() 'shows splashscreen if /hidesplash isn't set
-            SendCommands("?V")
-            SendCommands("?M")
-            SendCommands("?P")
-            CheckScreen.IsBackground = True
-            CheckScreen.Start()
-        End If
+        If showosd Then CheckScreen.Start()
 
         'loop through on commands
         If Not oncmd = "" Then
-            Dim RunOnCMD As New System.Threading.Thread(AddressOf OnCommands)
-            RunOnCMD.IsBackground = True
+            Dim RunOnCMD As New Threading.Thread(AddressOf OnCommands) With {.IsBackground = True}
             RunOnCMD.Start()
         End If
 
-        If statecmd Then
-            AddHandler Microsoft.Win32.SystemEvents.PowerModeChanged, AddressOf SystemEvents_PowerModeChanged
-        End If
+        'enables the state detection handler for resume/suspend commands
+        If statecmd Then AddHandler Microsoft.Win32.SystemEvents.PowerModeChanged, AddressOf SystemEvents_PowerModeChanged
     End Sub
 
+    'loop through commands that run on startup
     Private Sub OnCommands()
         For Each cmd In oncmd.Split(",")
             SendCommands(cmd.ToUpper)
@@ -103,30 +95,8 @@ Public Class Main
         Next
     End Sub
 
-    Private Sub SystemEvents_PowerModeChanged(ByVal sender As Object, ByVal e As PowerModeChangedEventArgs)
-        Try
-            Select Case e.Mode
-                Case PowerModes.Resume
-                    If Not oncmd = "" Then
-                        Dim RunOnCMD As New System.Threading.Thread(AddressOf OnCommands)
-                        RunOnCMD.IsBackground = True
-                        RunOnCMD.Start()
-                    End If
-                Case PowerModes.Suspend
-                    If Not offcmd = "" Then
-                        For Each cmd In offcmd.Split(",")
-                            SendCommands(cmd.ToUpper)
-                            System.Threading.Thread.Sleep(3000)
-                        Next
-                    End If
-            End Select
-        Catch ex As Exception
-            Debug.WriteLine(ex.Message)
-        End Try
-    End Sub
-
-    'loop through off commands
-    Private Sub Main_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+    'loop through commands that run on exit
+    Private Sub OffCommands()
         If Not offcmd = "" Then
             For Each cmd In offcmd.Split(",")
                 SendCommands(cmd.ToUpper)
@@ -135,17 +105,26 @@ Public Class Main
         End If
     End Sub
 
-    'connects to VSX
-    Private Function ConnectToVSX()
-        If tnSocket.Connected Then Return True
+    Private Sub Main_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
+        OffCommands()
+    End Sub
+
+    'runs commands on resume / suspend
+    Private Sub SystemEvents_PowerModeChanged(ByVal sender As Object, ByVal e As PowerModeChangedEventArgs)
         Try
-            tnSocket.Connect(ep)
-            If tnSocket.Connected Then Return True
-        Catch oEX As Exception
-            Return False
+            Select Case e.Mode
+                Case PowerModes.Resume
+                    If Not oncmd = "" Then
+                        Dim RunOnCMD As New Threading.Thread(AddressOf OnCommands) With {.IsBackground = True}
+                        RunOnCMD.Start()
+                    End If
+                Case PowerModes.Suspend
+                    OffCommands()
+            End Select
+        Catch ex As Exception
+
         End Try
-        Return False
-    End Function
+    End Sub
 
     'Sends command to VSX.
     Private Function SendCommands(ByVal cmd As String)
@@ -157,6 +136,7 @@ Public Class Main
     'Quick sub to parse volume and remove/add needed amount of zero's.
     Private Sub ValidateVolume(volume As String)
         'if value is less than 10 pre-fix 2 "0"s else if less than 100 pre-fix 1 "0" else just send the command without added "0"s
+        If imgMute.Image Is My.Resources.mute Then SendCommands("MF")
         If volume >= 185 Then
             SendCommands("185VL")
         ElseIf volume <= 0 Then
@@ -170,34 +150,53 @@ Public Class Main
         End If
     End Sub
 
-    Private Sub ntfyMain_Click(sender As Object, e As EventArgs) Handles ntfyMain.Click
+    'show OSD when notification is clicked
+    Private Sub NtfyMain_Click(sender As Object, e As EventArgs) Handles ntfyMain.Click
+        If Not CheckScreen.IsAlive Then
+            CheckScreen.IsBackground = True
+            CheckScreen.Start()
+        End If
         manual = True
         Me.Opacity = 1
-        Me.Show()
+        Me.Activate()
     End Sub
 
-    Private Sub sliderVol_ValueChanged(sender As Object, e As EventArgs) Handles sliderVol.ValueChanged
+    'update volume label on slider value change
+    Private Sub SliderVol_ValueChanged(sender As Object, e As EventArgs) Handles sliderVol.ValueChanged
         Label1.Text = Math.Round(sliderVol.Value / sliderVol.Maximum * 100)
     End Sub
 
-
+    'hide form when form has lost focus
     Private Sub Main_Deactivate(sender As Object, e As EventArgs) Handles MyBase.Deactivate
-        manual = False
-        Me.Opacity = 0
+        Try
+            If manual = True Then Me.Opacity = 0
+            manual = False
+        Catch ex As System.ComponentModel.Win32Exception
+        End Try
     End Sub
 
-    Private Sub sliderVol_Scroll(sender As Object, e As EventArgs) Handles sliderVol.Scroll
+    'send volume command when volume slider moves
+    Private Sub SliderVol_Scroll(sender As Object, e As EventArgs) Handles sliderVol.Scroll
         ValidateVolume(sliderVol.Value)
     End Sub
 
-    Private Sub imgMute_Click(sender As Object, e As EventArgs) Handles imgMute.Click
+    'send mute toggle command
+    Private Sub ImgMute_Click(sender As Object, e As EventArgs) Handles imgMute.Click
         SendCommands("MZ")
     End Sub
 
-    Private Sub PictureBox1_Click(sender As Object, e As EventArgs) Handles imgPower.Click
+    'send power toggle command, wait 5 seconds to allow AVR to fully power on or off
+    Private Sub ImgPower_Click(sender As Object, e As EventArgs) Handles imgPower.Click
         SendCommands("PZ")
+        Threading.Thread.Sleep(5000)
     End Sub
 
+    'manual check for updates from notificaiton right click menu
+    Private Sub CheckForupdatesToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CheckForupdatesToolStripMenuItem.Click
+        AutoUpdaterDotNET.AutoUpdater.Start("http://cyanlabs.net/raw/latest.php?product=" & My.Application.Info.ProductName)
+    End Sub
+
+    'exits application will run off commands
     Private Sub ExitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExitToolStripMenuItem.Click
         Application.Exit()
     End Sub
@@ -210,7 +209,7 @@ Public Class Main
     End Sub
 
     'check keypresses
-    Private Sub kHook_KeyDown(ByVal sender As Object, ByVal e As WindowsHookLib.KeyboardEventArgs) Handles kHook.KeyDown
+    Private Sub KHook_KeyDown(ByVal sender As Object, ByVal e As WindowsHookLib.KeyboardEventArgs) Handles kHook.KeyDown
         If e.KeyCode = Keys.VolumeUp And Control.ModifierKeys = Keys.Control = False Then
             e.Handled = True
             SendCommands("VU")
@@ -229,16 +228,9 @@ Public Class Main
     'fade form in, wait 5 seconds, fade form out
     Private Sub BackgroundWorker1_DoWork(sender As Object, e As System.ComponentModel.DoWorkEventArgs) Handles BackgroundWorker1.DoWork
         If manual = False Then
-            For iCount = 10 To 90 Step 10
-                Me.Opacity = iCount / 100
-                Threading.Thread.Sleep(25)
-            Next
+            UpdateOpacity(Me, 1)
             Threading.Thread.Sleep(5000)
-            For iCount = 90 To 10 Step -10
-                Me.Opacity = iCount / 100
-                Threading.Thread.Sleep(25)
-            Next
-            Me.Opacity = 0
+            UpdateOpacity(Me, 0)
         End If
     End Sub
 
@@ -247,39 +239,76 @@ Public Class Main
     'Basically it is hex code for a ASCII character so we substring each 2 characters from the string.
     'Then we "convert.toint32" them to get a integer we can then simply "Chr" the number to get the character.
     Function DecryptScreen(temp As String)
-        Dim OSD As String = temp.ToString.Replace("FL", "").Replace(vbLf, "").Replace(vbCrLf, "").Replace("2020", "")
+        Dim OSD As String = temp.ToString.Replace("FL", "").Replace(vbLf, "").Replace(vbCrLf, "").Replace("00", "").Replace("02", "")
         Dim output As String = ""
         For x As Integer = 0 To OSD.Length - 1 Step 2
-            If Not OSD.Substring(x, 2) = "00" Then
-                output = output & Chr(Convert.ToInt32("0x" & OSD.Substring(x, 2), 16))
-            End If
+            If Not OSD.Substring(x, 2) = "00" Then output = output & Chr(Convert.ToInt32("0x" & OSD.Substring(x, 2), 16))
         Next
         Return output
     End Function
 
+    'Cross thread functions to safely update textbox, label and other controls
+    Private Delegate Sub UpdateTrackbarDelegate(ByVal TB As TrackBar, ByVal value As String)
+    Private Sub UpdateTrackbar(ByVal TB As TrackBar, ByVal value As String)
+        If TB.InvokeRequired Then
+            TB.Invoke(New UpdateTrackbarDelegate(AddressOf UpdateTrackbar), New Object() {TB, value})
+        Else
+            TB.Value = value
+        End If
+    End Sub
+    Private Delegate Sub UpdateLabelDelegate(ByVal label As Label, ByVal value As String)
+    Private Sub UpdateLabel(ByVal label As Label, ByVal value As String)
+        If label.InvokeRequired Then
+            label.Invoke(New UpdateLabelDelegate(AddressOf UpdateLabel), New Object() {label, value})
+        Else
+            label.Text = value
+        End If
+    End Sub
+    Private Delegate Sub EnableControlDelegate(ByVal control As Control, ByVal state As Boolean)
+    Private Sub EnableControl(ByVal control As Control, ByVal state As Boolean)
+        If control.InvokeRequired Then
+            control.Invoke(New EnableControlDelegate(AddressOf EnableControl), New Object() {control, state})
+        Else
+            control.Enabled = state
+        End If
+    End Sub
+    Private Delegate Sub UpdateOpacityDelegate(ByVal form As Form, ByVal value As Integer)
+    Private Sub UpdateOpacity(ByVal form As Form, ByVal value As Integer)
+        If form.InvokeRequired Then
+            form.Invoke(New UpdateOpacityDelegate(AddressOf UpdateOpacity), New Object() {form, value})
+        Else
+            form.Opacity = value
+        End If
+    End Sub
+
     'parses the output recieved from the screen
     Sub ParseScreen(output As String)
         Try
-            output = output.Replace(vbLf, "").Replace(vbCrLf, "")
-            If output.ToString.Contains("FL") Then
-                Dim decryptedOSD As String = DecryptScreen(output)
-                Me.lblOSD.Font = CustomFont.GetInstance(24.0!, FontStyle.Regular)
-                lblOSD.Text = decryptedOSD.ToString
-                If Not BackgroundWorker1.IsBusy Then BackgroundWorker1.RunWorkerAsync()
-            ElseIf output.ToString.Contains("MUT0") Then
-                imgMute.Image = My.Resources.mute
-            ElseIf output.ToString.Contains("MUT1") Then
-                imgMute.Image = My.Resources.vol
-            ElseIf output.ToString.Contains("VOL") Then
-                sliderVol.Value = output.ToString.Replace("VOL", "")
-            ElseIf output.ToString.Contains("PWR0") Then
-                imgPower.Image = My.Resources.pwron
-            ElseIf output.ToString.Contains("PWR1") Then
-                imgPower.Image = My.Resources.off
+            If Me.Opacity = 1 Or showosd Then
+                output = output.Replace(vbLf, "").Replace(vbCrLf, "")
+                If output.ToString.Contains("FL") Then
+                    Dim decryptedOSD As String = DecryptScreen(output)
+                    Me.lblOSD.Font = CustomFont.GetInstance(24.0!, FontStyle.Regular)
+                    UpdateLabel(lblOSD, decryptedOSD.ToString)
+                    If Not BackgroundWorker1.IsBusy Then BackgroundWorker1.RunWorkerAsync()
+                ElseIf output.ToString.Contains("MUT0") Then
+                    imgMute.Image = My.Resources.mute
+                ElseIf output.ToString.Contains("MUT1") Then
+                    imgMute.Image = My.Resources.vol
+                ElseIf output.ToString.Contains("VOL") Then
+                    UpdateTrackbar(sliderVol, output.ToString.Replace("VOL", ""))
+                ElseIf output.ToString.Contains("PWR0") Then
+                    imgPower.Image = My.Resources.pwron
+                    EnableControl(sliderVol, True)
+                    EnableControl(imgMute, True)
+                ElseIf output.ToString.Contains("PWR1") Then
+                    imgPower.Image = My.Resources.off
+                    EnableControl(sliderVol, False)
+                    EnableControl(imgMute, False)
+                End If
             End If
         Catch ex As Exception
             Throw ex
-            'TODO error handling
         End Try
     End Sub
 
@@ -290,19 +319,24 @@ Public Class Main
         Dim RecvString As String = String.Empty
         Dim NumBytes As Integer = 0
         Dim RecvBytes(255) As [Byte]
-        Do
-            NumBytes = tnSocket.Receive(RecvBytes, RecvBytes.Length, 0)
-            RecvString = RecvString + Encoding.ASCII.GetString(RecvBytes, 0, NumBytes)
-            output = output & RecvString
-            result = output.Split(vbCrLf)
-        Loop While NumBytes = 256
-
-        'loops through all response strings
-        For Each i In result
-            If i = vbCrLf Or i = vbLf Then Continue For
-            ParseScreen(i)
-        Next
-        'Repeats sub
-        UpdateScreen()
+        Try
+            Do
+                NumBytes = tnSocket.Receive(RecvBytes, RecvBytes.Length, 0)
+                RecvString = RecvString + Encoding.ASCII.GetString(RecvBytes, 0, NumBytes)
+                output = output & RecvString
+                result = output.Split(vbCrLf)
+            Loop While NumBytes = 256
+            For Each i In result
+                If i = vbCrLf Or i = vbLf Then Continue For
+                ParseScreen(i)
+            Next
+            UpdateScreen()
+        Catch ex As System.Net.Sockets.SocketException
+            If MsgBox("Connection to Pioneer AVR has been lost, would you like to attempt to reconnect?", MsgBoxStyle.YesNo & MsgBoxStyle.Information, "Connection lost!") = DialogResult.Yes Then
+                tnSocket.Connect(ep)
+            Else
+                Application.Exit()
+            End If
+        End Try
     End Sub
 End Class
