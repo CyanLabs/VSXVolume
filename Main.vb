@@ -150,17 +150,6 @@ Public Class Main
         End If
     End Sub
 
-    'show OSD when notification is clicked
-    Private Sub NtfyMain_Click(sender As Object, e As EventArgs) Handles ntfyMain.Click
-        If Not CheckScreen.IsAlive Then
-            CheckScreen.IsBackground = True
-            CheckScreen.Start()
-        End If
-        manual = True
-        Me.Opacity = 1
-        Me.Activate()
-    End Sub
-
     'update volume label on slider value change
     Private Sub SliderVol_ValueChanged(sender As Object, e As EventArgs) Handles sliderVol.ValueChanged
         Label1.Text = Math.Round(sliderVol.Value / sliderVol.Maximum * 100)
@@ -235,14 +224,22 @@ Public Class Main
     End Sub
 
     'Converts pioneers FL strings such as "FL022020202053544552454F20202020" to readable text "STEREO".
-    'First we remove the FL and then any 00's are ignored as they basically are alignments.
-    'Basically it is hex code for a ASCII character so we substring each 2 characters from the string.
+    'First we remove the FL. Basically it is hex code for a ASCII character so we substring each 2 characters from the string.
     'Then we "convert.toint32" them to get a integer we can then simply "Chr" the number to get the character.
     Function DecryptScreen(temp As String)
-        Dim OSD As String = temp.ToString.Replace("FL", "").Replace(vbLf, "").Replace(vbCrLf, "").Replace("00", "").Replace("02", "")
+        Dim OSD As String = temp.ToString.Replace("FL", "").Replace(vbLf, "").Replace(vbCrLf, "")
         Dim output As String = ""
         For x As Integer = 0 To OSD.Length - 1 Step 2
-            If Not OSD.Substring(x, 2) = "00" Then output = output & Chr(Convert.ToInt32("0x" & OSD.Substring(x, 2), 16))
+            If OSD.Substring(x, 2) = "00" Then
+            ElseIf OSD.Substring(x, 2) = "02" Then
+            ElseIf OSD.Substring(x, 2) = "05" Then
+                output = output & "DOLBY "
+            ElseIf OSD.Substring(x, 2) = "06" Then
+            ElseIf OSD.Substring(x, 2) = "08" Then
+                output = output & "2"
+            Else
+                output = output & Chr(Convert.ToInt32("0x" & OSD.Substring(x, 2), 16))
+            End If
         Next
         Return output
     End Function
@@ -257,6 +254,20 @@ Public Class Main
         End If
     End Sub
     Private Delegate Sub UpdateLabelDelegate(ByVal label As Label, ByVal value As String)
+
+    'show OSD when notification is clicked
+    Private Sub NtfyMain_MouseClick(sender As Object, e As Windows.Forms.MouseEventArgs) Handles ntfyMain.MouseClick
+        If e.Button = MouseButtons.Left Then
+            If Not CheckScreen.IsAlive Then
+                CheckScreen.IsBackground = True
+                CheckScreen.Start()
+            End If
+            manual = True
+            Me.Opacity = 1
+            Me.Activate()
+        End If
+    End Sub
+
     Private Sub UpdateLabel(ByVal label As Label, ByVal value As String)
         If label.InvokeRequired Then
             label.Invoke(New UpdateLabelDelegate(AddressOf UpdateLabel), New Object() {label, value})
@@ -288,7 +299,7 @@ Public Class Main
                 output = output.Replace(vbLf, "").Replace(vbCrLf, "")
                 If output.ToString.Contains("FL") Then
                     Dim decryptedOSD As String = DecryptScreen(output)
-                    Me.lblOSD.Font = CustomFont.GetInstance(24.0!, FontStyle.Regular)
+                    Me.lblOSD.Font = New System.Drawing.Font("Segoe UI", 24.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
                     UpdateLabel(lblOSD, decryptedOSD.ToString)
                     If Not BackgroundWorker1.IsBusy Then BackgroundWorker1.RunWorkerAsync()
                 ElseIf output.ToString.Contains("MUT0") Then
@@ -332,7 +343,7 @@ Public Class Main
             Next
             UpdateScreen()
         Catch ex As System.Net.Sockets.SocketException
-            If MsgBox("Connection to Pioneer AVR has been lost, would you like to attempt to reconnect?", MsgBoxStyle.YesNo & MsgBoxStyle.Information, "Connection lost!") = DialogResult.Yes Then
+            If MsgBox("Connection to the Pioneer AVR has been lost, would you like to attempt to reconnect?" & vbNewLine & vbNewLine & "Click 'YES' to rety or 'NO' to exit VSX Volume", MsgBoxStyle.YesNo + MsgBoxStyle.Information, "Connection lost!") = DialogResult.Yes Then
                 tnSocket.Connect(ep)
             Else
                 Application.Exit()

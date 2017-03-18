@@ -28,13 +28,13 @@ Partial Class Main
         Me.BackgroundWorker1 = New System.ComponentModel.BackgroundWorker()
         Me.ntfyMain = New System.Windows.Forms.NotifyIcon(Me.components)
         Me.ctxtExit = New System.Windows.Forms.ContextMenuStrip(Me.components)
+        Me.CheckForupdatesToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator()
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.sliderVol = New System.Windows.Forms.TrackBar()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.imgPower = New System.Windows.Forms.PictureBox()
         Me.imgMute = New System.Windows.Forms.PictureBox()
-        Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator()
-        Me.CheckForupdatesToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ctxtExit.SuspendLayout()
         CType(Me.sliderVol, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.imgPower, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -44,16 +44,15 @@ Partial Class Main
         'lblOSD
         '
         Me.lblOSD.BackColor = System.Drawing.Color.Transparent
-        Me.lblOSD.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.lblOSD.Dock = System.Windows.Forms.DockStyle.Top
         Me.lblOSD.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.lblOSD.ForeColor = System.Drawing.Color.White
-        Me.lblOSD.Location = New System.Drawing.Point(0, 2)
+        Me.lblOSD.Location = New System.Drawing.Point(0, 0)
         Me.lblOSD.Name = "lblOSD"
-        Me.lblOSD.Size = New System.Drawing.Size(335, 59)
+        Me.lblOSD.Size = New System.Drawing.Size(335, 53)
         Me.lblOSD.TabIndex = 19
         Me.lblOSD.Text = "VSX Volume" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Cyanlabs 2017"
         Me.lblOSD.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        Me.lblOSD.UseCompatibleTextRendering = True
         Me.lblOSD.UseMnemonic = False
         '
         'BackgroundWorker1
@@ -74,7 +73,18 @@ Partial Class Main
         '
         Me.ctxtExit.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.CheckForupdatesToolStripMenuItem, Me.ToolStripSeparator1, Me.ExitToolStripMenuItem})
         Me.ctxtExit.Name = "ctxtExit"
-        Me.ctxtExit.Size = New System.Drawing.Size(171, 76)
+        Me.ctxtExit.Size = New System.Drawing.Size(171, 54)
+        '
+        'CheckForupdatesToolStripMenuItem
+        '
+        Me.CheckForupdatesToolStripMenuItem.Name = "CheckForupdatesToolStripMenuItem"
+        Me.CheckForupdatesToolStripMenuItem.Size = New System.Drawing.Size(170, 22)
+        Me.CheckForupdatesToolStripMenuItem.Text = "Check for &updates"
+        '
+        'ToolStripSeparator1
+        '
+        Me.ToolStripSeparator1.Name = "ToolStripSeparator1"
+        Me.ToolStripSeparator1.Size = New System.Drawing.Size(167, 6)
         '
         'ExitToolStripMenuItem
         '
@@ -128,17 +138,6 @@ Partial Class Main
         Me.imgMute.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
         Me.imgMute.TabIndex = 22
         Me.imgMute.TabStop = False
-        '
-        'ToolStripSeparator1
-        '
-        Me.ToolStripSeparator1.Name = "ToolStripSeparator1"
-        Me.ToolStripSeparator1.Size = New System.Drawing.Size(167, 6)
-        '
-        'CheckForupdatesToolStripMenuItem
-        '
-        Me.CheckForupdatesToolStripMenuItem.Name = "CheckForupdatesToolStripMenuItem"
-        Me.CheckForupdatesToolStripMenuItem.Size = New System.Drawing.Size(170, 22)
-        Me.CheckForupdatesToolStripMenuItem.Text = "Check for &updates"
         '
         'Main
         '
