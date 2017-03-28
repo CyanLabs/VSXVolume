@@ -24,7 +24,8 @@ Public Class Main
     Dim ip As IPAddress, tnSocket As New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp), ep As IPEndPoint, startupcmd As Boolean = False
     Dim WithEvents KHook As New KeyboardHook
     Dim CheckScreen As New System.Threading.Thread(AddressOf UpdateScreen)
-    Dim oncmd As String, offcmd As String, showosd As Boolean = False, statecmd As Boolean = False, manual As Boolean = False
+    Dim oncmd As String, offcmd As String, showosd As Boolean = False, statecmd As Boolean = False, manual As Boolean = False, crash As Boolean = False, screennum As Integer = 0, setscreen As Boolean = False
+    Dim x As Integer, y As Integer
 
     Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AutoUpdaterDotNET.AutoUpdater.Start("http://cyanlabs.net/raw/latest.php?product=" & My.Application.Info.ProductName)
@@ -39,7 +40,7 @@ Public Class Main
                         If IPAddress.TryParse(arg.Replace("/ip=", ""), ip) Then
                             ep = New IPEndPoint(System.Net.IPAddress.Parse(arg.Replace("/ip=", "")), 8102)
                         Else
-                            MsgBox("Enter a valid IP Address as a command line argument (VSX Volume.exe /ip=xxx.xxx.xxx.xxx)", MsgBoxStyle.Exclamation, "Error")
+                            MsgBox("Enter a valid IP Address as a command line argument (VSX Volume.exe /ip=xxx.xxx.xxx.xxx)", MsgBoxStyle.Exclamation, "VSX Volume - Error")
                             Application.Exit()
                         End If
                     Case arg.ToLower.Contains("/oncommands=")
@@ -53,22 +54,42 @@ Public Class Main
                     Case arg.ToLower = "/nokeybinds"
                         KHook.RemoveHook()
                         KHook.Dispose()
+                    Case arg.ToLower.Contains("/screen=")
+                        Try
+                            screennum = arg.Replace("/screen=", "").Replace("""", "").Trim - 1
+                            'Sets which display application will be shown on
+                            If screennum > Screen.AllScreens.Length Then
+                                ntfyMain.ShowBalloonTip(5000, "VSX Volume - Monitor not found", "Could not display application on your preferred monitor, defaulting to your primary monitor.", ToolTipIcon.Info)
+                            Else
+                                setscreen = True
+                                x = Screen.AllScreens(screennum).WorkingArea.Width - (Me.Width + 5)
+                                y = Screen.AllScreens(screennum).WorkingArea.Height - (Me.Height + 5)
+                                Location = Screen.AllScreens(screennum).Bounds.Location + New Point(x, y)
+                            End If
+                        Catch ex As System.InvalidCastException
+                            MsgBox("""" & arg.Replace("/screen=", "").Replace("""", "").Trim & """ is not a valid number for ""/screen""." & vbNewLine & vbNewLine & "Please choose a value between 1 and " & Screen.AllScreens.Length, MsgBoxStyle.Exclamation, "VSX Volume - Error")
+                            crash = True
+                            Application.Exit()
+                        End Try
                     Case Else
                 End Select
             Next
         Else
-            MsgBox("No arguments entered, please read the documentation at http://cyanlabs.net/application/vsx-volume for further information", MsgBoxStyle.Exclamation, "Error")
+            MsgBox("No arguments entered, please read the documentation at http://cyanlabs.net/application/vsx-volume for further information", MsgBoxStyle.Exclamation, "VSX Volume - Error")
             Application.Exit()
         End If
+        Try
+            tnSocket.Connect(ep)
+        Catch ex As System.Net.Sockets.SocketException
+            MsgBox("Connection to the Pioneer AVR could not be established, please check your network connectivity." & vbNewLine & vbNewLine & "VSX Volume will now close", MsgBoxStyle.Exclamation, "VSX Volume - Connection error")
+            Environment.Exit(1)
+        End Try
+        If setscreen = False Then
+            x = Screen.PrimaryScreen.WorkingArea.Width - (Me.Width + 5)
+            y = Screen.PrimaryScreen.WorkingArea.Height - (Me.Height + 5)
+            Location = New Point(x, y)
+        End If
 
-        tnSocket.Connect(ep)
-
-        'prepares OSD as OSD is shown regardless of argument above if notification icon is clicked manually
-        Dim x As Integer
-        Dim y As Integer
-        x = Screen.PrimaryScreen.WorkingArea.Width - (Me.Width + 5)
-        y = Screen.PrimaryScreen.WorkingArea.Height - (Me.Height + 5)
-        Me.Location = New Point(x, y)
         SendCommands("?V")
         SendCommands("?M")
         SendCommands("?P")
@@ -106,7 +127,7 @@ Public Class Main
     End Sub
 
     Private Sub Main_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
-        OffCommands()
+        If crash = False Then OffCommands()
     End Sub
 
     'runs commands on resume / suspend
@@ -128,8 +149,19 @@ Public Class Main
 
     'Sends command to VSX.
     Private Function SendCommands(ByVal cmd As String)
-        Dim SendBytes As [Byte]() = Encoding.ASCII.GetBytes(cmd & vbCrLf)
-        tnSocket.Send(SendBytes, SendBytes.Length, SocketFlags.None)
+        Try
+            Dim SendBytes As [Byte]() = Encoding.ASCII.GetBytes(cmd & vbCrLf)
+            tnSocket.Send(SendBytes, SendBytes.Length, SocketFlags.None)
+        Catch ex As Exception
+            Dim msgresult As Integer = MsgBox("Connection to the Pioneer AVR has been lost, would you like to attempt to reconnect?" & vbNewLine & vbNewLine & "Click 'YES' to rety or 'NO' to exit VSX Volume", MessageBoxButtons.YesNo + MsgBoxStyle.Information, "VSX Volume - Connection lost")
+            If msgresult = DialogResult.Yes Then
+                crash = True
+                Application.Restart()
+            Else
+                crash = True
+                Application.Exit()
+            End If
+        End Try
         Return Nothing
     End Function
 
@@ -343,9 +375,12 @@ Public Class Main
             Next
             UpdateScreen()
         Catch ex As System.Net.Sockets.SocketException
-            If MsgBox("Connection to the Pioneer AVR has been lost, would you like to attempt to reconnect?" & vbNewLine & vbNewLine & "Click 'YES' to rety or 'NO' to exit VSX Volume", MsgBoxStyle.YesNo + MsgBoxStyle.Information, "Connection lost!") = DialogResult.Yes Then
-                tnSocket.Connect(ep)
+            Dim msgresult As Integer = MsgBox("Connection to the Pioneer AVR has been lost, would you like to attempt to reconnect?" & vbNewLine & vbNewLine & "Click 'YES' to rety or 'NO' to exit VSX Volume", MessageBoxButtons.YesNo + MsgBoxStyle.Information, "VSX Volume - Connection lost")
+            If msgresult = DialogResult.Yes Then
+                crash = True
+                Application.Restart()
             Else
+                crash = True
                 Application.Exit()
             End If
         End Try
