@@ -50,6 +50,8 @@ FunctionEnd
 
 ; Replace the constants bellow to hit suite your project
 Name "${PRODUCT_NAME}"
+!system "md bin\Deploy"
+OutFile "bin\Deploy\VSXVolume_${MyTIMESTAMP}.exe"
 InstallDir "$PROGRAMFILES\${PRODUCT_NAME}"
 
 ShowInstDetails show
