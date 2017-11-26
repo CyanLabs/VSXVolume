@@ -35,10 +35,12 @@ Partial Class Main
         Me.Label1 = New System.Windows.Forms.Label()
         Me.imgPower = New System.Windows.Forms.PictureBox()
         Me.imgMute = New System.Windows.Forms.PictureBox()
+        Me.imgInput = New System.Windows.Forms.PictureBox()
         Me.ctxtExit.SuspendLayout()
         CType(Me.sliderVol, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.imgPower, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.imgMute, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.imgInput, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'lblOSD
@@ -139,12 +141,26 @@ Partial Class Main
         Me.imgMute.TabIndex = 22
         Me.imgMute.TabStop = False
         '
+        'imgInput
+        '
+        Me.imgInput.BackColor = System.Drawing.Color.Transparent
+        Me.imgInput.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.imgInput.Image = Global.VSX_Volume.My.Resources.Resources.input
+        Me.imgInput.Location = New System.Drawing.Point(284, 3)
+        Me.imgInput.Name = "imgInput"
+        Me.imgInput.Size = New System.Drawing.Size(20, 20)
+        Me.imgInput.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
+        Me.imgInput.TabIndex = 25
+        Me.imgInput.TabStop = False
+        Me.imgInput.Visible = False
+        '
         'Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.Black
         Me.ClientSize = New System.Drawing.Size(335, 90)
+        Me.Controls.Add(Me.imgInput)
         Me.Controls.Add(Me.imgPower)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.imgMute)
@@ -162,6 +178,7 @@ Partial Class Main
         CType(Me.sliderVol, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.imgPower, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.imgMute, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.imgInput, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -178,4 +195,5 @@ Partial Class Main
     Friend WithEvents imgPower As PictureBox
     Friend WithEvents ToolStripSeparator1 As ToolStripSeparator
     Friend WithEvents CheckForupdatesToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents imgInput As PictureBox
 End Class

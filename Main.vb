@@ -24,7 +24,7 @@ Public Class Main
     Dim ip As IPAddress, tnSocket As New Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp), ep As IPEndPoint, startupcmd As Boolean = False
     Dim WithEvents KHook As New KeyboardHook
     Dim CheckScreen As New System.Threading.Thread(AddressOf UpdateScreen)
-    Dim oncmd As String, offcmd As String, showosd As Boolean = False, statecmd As Boolean = False, manual As Boolean = False, crash As Boolean = False, screennum As Integer = 0, setscreen As Boolean = False
+    Dim oncmd As String, offcmd As String, showosd As Boolean = False, statecmd As Boolean = False, manual As Boolean = False, crash As Boolean = False, screennum As Integer = 0, setscreen As Boolean = False, defaultinput As String
     Dim x As Integer, y As Integer
 
     Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -45,6 +45,12 @@ Public Class Main
                         End If
                     Case arg.ToLower.Contains("/oncommands=")
                         oncmd = arg.Replace("/oncommands=", "").Replace("""", "").Trim
+                    Case arg.ToLower.Contains("/defaultinput=")
+                        defaultinput = arg.Replace("/defaultinput=", "").Replace("""", "").Trim
+                        imgInput.Visible = True
+                    Case arg.ToLower.Contains("/inputs=")
+                        ''inputs = arg.Replace("/inputs=", "").Replace("""", "").Trim
+                        imgInput.Visible = True
                     Case arg.ToLower.Contains("/offcommands=")
                         offcmd = arg.Replace("/offcommands=", "").Replace("""", "").Trim
                     Case arg.ToLower.Contains("/osd")
@@ -240,9 +246,12 @@ Public Class Main
         ElseIf e.KeyCode = Keys.VolumeMute And Control.ModifierKeys = Keys.Control = False Then
             e.Handled = True
             SendCommands("MZ")
-        ElseIf e.KeyCode = Keys.Pause And Control.ModifierKeys = Keys.Control = False Then
+        ElseIf e.KeyCode = Keys.Pause And Control.ModifierKeys = Keys.Control = False And Control.ModifierKeys = Keys.Shift = False Then
             e.Handled = True
             SendCommands("PZ")
+        ElseIf e.KeyCode = Keys.Pause And Control.ModifierKeys = Keys.Control = False And Control.ModifierKeys = Keys.Shift = True Then
+            e.Handled = True
+            SendCommands(defaultinput)
         End If
     End Sub
 
@@ -252,6 +261,14 @@ Public Class Main
             UpdateOpacity(Me, 1)
             Threading.Thread.Sleep(5000)
             UpdateOpacity(Me, 0)
+        End If
+    End Sub
+
+    Private Sub imgInput_MouseClick(sender As Object, e As Windows.Forms.MouseEventArgs) Handles imgInput.MouseClick
+        If e.Button = MouseButtons.Left Then
+            SendCommands(defaultinput)
+        Else
+
         End If
     End Sub
 

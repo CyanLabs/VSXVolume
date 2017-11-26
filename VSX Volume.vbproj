@@ -133,6 +133,7 @@
     <None Include="Resources\on.png" />
     <None Include="Resources\mute.png" />
     <None Include="Resources\vol.png" />
+    <None Include="Resources\input.png" />
     <Content Include="Saki-NuoveXT-Actions-player-volume.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
