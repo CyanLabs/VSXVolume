@@ -70,15 +70,22 @@ Public Class Main
                                 setscreen = True
                                 x = Screen.AllScreens(screennum).WorkingArea.Width - (Me.Width + 5)
                                 y = Screen.AllScreens(screennum).WorkingArea.Height - (Me.Height + 5)
-                                Location = Screen.AllScreens(screennum).Bounds.Location + New Point(x, y)
                             End If
                         Catch ex As System.InvalidCastException
                             MsgBox("""" & arg.Replace("/screen=", "").Replace("""", "").Trim & """ is not a valid number for ""/screen""." & vbNewLine & vbNewLine & "Please choose a value between 1 and " & Screen.AllScreens.Length, MsgBoxStyle.Exclamation, "VSX Volume - Error")
                             crash = True
                             Application.Exit()
                         End Try
+                    Case arg.ToLower.Contains("/x=")
+                        Dim tmpx As String = arg.Replace("/x=", "").Replace("""", "").Trim
+                        If IsNumeric(tmpx) Then x = tmpx
+                    Case arg.ToLower.Contains("/y=")
+                        Dim tmpy As String = arg.Replace("/y=", "").Replace("""", "").Trim
+                        If IsNumeric(tmpy) Then y = tmpy
                     Case Else
                 End Select
+
+                Location = Screen.AllScreens(screennum).Bounds.Location + New Point(x, y)
             Next
         Else
             MsgBox("No arguments entered, please read the documentation at http://cyanlabs.net/application/vsx-volume for further information", MsgBoxStyle.Exclamation, "VSX Volume - Error")

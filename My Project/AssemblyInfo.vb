@@ -12,7 +12,7 @@ Imports System.Runtime.InteropServices
 <Assembly: AssemblyDescription("Simple volume key hijack with on/off commands and a OSD")>
 <Assembly: AssemblyCompany("CyanLabs")> 
 <Assembly: AssemblyProduct("VSX Volume")>
-<Assembly: AssemblyCopyright("Copyright © CyanLabs 2017")>
+<Assembly: AssemblyCopyright("Copyright © CyanLabs 2019")>
 <Assembly: AssemblyTrademark("")> 
 
 <Assembly: ComVisible(False)>
@@ -31,4 +31,4 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("2.4.2.0")>
+<Assembly: AssemblyVersion("2.4.3.0")>
