@@ -25,7 +25,7 @@ Public Class Main
     Dim WithEvents KHook As New KeyboardHook
     Dim CheckScreen As New System.Threading.Thread(AddressOf UpdateScreen)
     Dim oncmd As String, offcmd As String, showosd As Boolean = False, statecmd As Boolean = False, manual As Boolean = False, crash As Boolean = False, screennum As Integer = 0, setscreen As Boolean = False, defaultinput As String
-    Dim x As Integer, y As Integer
+    Dim x As Integer, y As Integer, disablemute As Boolean = False
 
     Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         AutoUpdaterDotNET.AutoUpdater.Start("http://cyanlabs.net/raw/latest.php?product=" & My.Application.Info.ProductName)
@@ -82,6 +82,8 @@ Public Class Main
                     Case arg.ToLower.Contains("/y=")
                         Dim tmpy As String = arg.Replace("/y=", "").Replace("""", "").Trim
                         If IsNumeric(tmpy) Then y = tmpy
+                    Case arg.ToLower = "/nomute"
+                        disablemute = True
                     Case Else
                 End Select
 
@@ -250,7 +252,7 @@ Public Class Main
         ElseIf e.KeyCode = Keys.VolumeDown And Control.ModifierKeys = Keys.Control = False Then
             e.Handled = True
             SendCommands("VD")
-        ElseIf e.KeyCode = Keys.VolumeMute And Control.ModifierKeys = Keys.Control = False Then
+        ElseIf e.KeyCode = Keys.VolumeMute And Control.ModifierKeys = Keys.Control = False And disablemute = False Then
             e.Handled = True
             SendCommands("MZ")
         ElseIf e.KeyCode = Keys.Pause And Control.ModifierKeys = Keys.Control = False And Control.ModifierKeys = Keys.Shift = False Then
